@@ -1,23 +1,27 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter import filedialog
-from PIL import Image, ImageTk
-import os
 
+import tkinter as tk  # GUI framework
+from tkinter import ttk  # Themed widgets
+from tkinter import filedialog  # File dialog for loading images
+from PIL import Image, ImageTk  # For image processing
+import os  # For file and directory operations
+
+# Main class for the Image Gallery Application
 class ImageGalleryApp:
     def __init__(self, root):
+        # Initialize the main application window
         self.root = root
         self.root.title("Image Gallery App")
-        self.root.geometry("1000x800")  # Adjusted for the wider right panel
+        self.root.geometry("1000x800")  # Set window size
 
-        # Configure the layout
-        self.root.rowconfigure(0, weight=1)
-        self.root.columnconfigure(1, weight=1)
+        # Configure layout of the main window
+        self.root.rowconfigure(0, weight=1)  # Single row with resizable height
+        self.root.columnconfigure(1, weight=1)  # Middle column expands with the window
 
         # User Guide and Gesture Panel (Left)
-        self.guide_panel = tk.Frame(self.root, width=500, bg="gray")
+        self.guide_panel = tk.Frame(self.root, width=500, bg="gray")  # Left panel for guide and gestures
         self.guide_panel.grid(row=0, column=0, sticky="ns")
-        
+
+        # Guide label with usage instructions
         self.guide_label = tk.Label(
             self.guide_panel,
             text="User Guide:\n\n1. Scroll to browse images.\n2. Click an image to view.\n3. Use Zoom/Rotate buttons.",
@@ -28,54 +32,57 @@ class ImageGalleryApp:
         )
         self.guide_label.pack(pady=10, padx=10)
 
-        # Display Gesture Images Dynamically
+        # Dynamically load and display gesture images for left panel
         self.load_gesture_images()
 
         # Main Image Gallery Area (Middle)
-        self.gallery_frame = tk.Frame(self.root, bg="white")
+        self.gallery_frame = tk.Frame(self.root, bg="white")  # Center panel for gallery thumbnails
         self.gallery_frame.grid(row=0, column=1, sticky="nsew")
 
-        # Scrollbars for the gallery
+        # Scrollable canvas for thumbnails
         self.canvas = tk.Canvas(self.gallery_frame, bg="white", highlightthickness=0)
         self.scroll_y = ttk.Scrollbar(self.gallery_frame, orient="vertical", command=self.canvas.yview)
         self.scroll_x = ttk.Scrollbar(self.gallery_frame, orient="horizontal", command=self.canvas.xview)
-        self.scroll_y.pack(side="right", fill="y")
-        self.scroll_x.pack(side="bottom", fill="x")
+        self.scroll_y.pack(side="right", fill="y")  # Vertical scrollbar
+        self.scroll_x.pack(side="bottom", fill="x")  # Horizontal scrollbar
         self.canvas.pack(fill="both", expand=True)
         self.canvas.configure(yscrollcommand=self.scroll_y.set, xscrollcommand=self.scroll_x.set)
 
-        # Gallery Content Frame
+        # Content frame inside the canvas
         self.gallery_content = tk.Frame(self.canvas, bg="white")
         self.canvas.create_window((0, 0), window=self.gallery_content, anchor="nw")
         self.gallery_content.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
 
-        # Bind mouse wheel scrolling
-        self.canvas.bind("<MouseWheel>", self._on_mouse_wheel_vertical)  # Vertical scrolling
-        self.canvas.bind("<Shift-MouseWheel>", self._on_mouse_wheel_horizontal)  # Horizontal scrolling with Shift key
+        # Enable mouse wheel scrolling
+        self.canvas.bind("<MouseWheel>", self._on_mouse_wheel_vertical)
+        self.canvas.bind("<Shift-MouseWheel>", self._on_mouse_wheel_horizontal)
 
         # Buttons Panel (Right)
-        self.buttons_panel = tk.Frame(self.root, width=300, bg="lightgray")  # Wider right panel
+        self.buttons_panel = tk.Frame(self.root, width=300, bg="lightgray")  # Right panel for actions
         self.buttons_panel.grid(row=0, column=2, sticky="ns")
 
+        # Load images button
         self.load_button = tk.Button(self.buttons_panel, text="Load Images", command=self.load_images, width=20)
         self.load_button.pack(pady=10)
 
-        # A list to hold image paths
+        # List to store loaded image file paths
         self.image_files = []
 
+    # Load and display gesture images dynamically from the 'gestures' folder.
     def load_gesture_images(self):
-        """Load and display gesture images dynamically from the 'gestures' folder."""
-        gestures_folder = "gestures"  # Specify the folder name
-        if not os.path.exists(gestures_folder):
-            os.makedirs(gestures_folder)  # Create the folder if it doesn't exist
+        gestures_folder = "gestures"  # Folder to store gesture images
+        if not os.path.exists(gestures_folder):  # Create the folder if it doesn't exist, put it on the same directory with this python file
+            os.makedirs(gestures_folder)
             print(f"Created folder '{gestures_folder}' to store gesture images.")
             return
 
+        # List gesture image files
         gesture_files = os.listdir(gestures_folder)
         gesture_images = [
             f for f in gesture_files if f.lower().endswith(('.png', '.jpg', '.jpeg'))
         ]
 
+        # Notify user if no gesture images are found
         if not gesture_images:
             tk.Label(
                 self.guide_panel,
@@ -86,49 +93,51 @@ class ImageGalleryApp:
             ).pack(pady=10)
             return
 
+        # Display each gesture image
         for gesture_image in gesture_images:
             img_path = os.path.join(gestures_folder, gesture_image)
             frame = tk.Frame(self.guide_panel, bg="gray", pady=5)
             frame.pack()
 
             try:
+                # Load and display thumbnail
                 img = Image.open(img_path)
-                img.thumbnail((100, 100))  # Thumbnail size
+                img.thumbnail((100, 100))
                 img = ImageTk.PhotoImage(img)
                 img_label = tk.Label(frame, image=img, bg="gray")
-                img_label.image = img  # Keep a reference
+                img_label.image = img  # Keep a reference to prevent garbage collection
                 img_label.pack(side="left", padx=5)
             except Exception as e:
                 print(f"Error loading {img_path}: {e}")
                 img_label = tk.Label(frame, text="No Image", bg="gray", fg="red")
                 img_label.pack(side="left", padx=5)
 
-            # Display the filename without extension
+            # Display gesture name without file extension
             name = os.path.splitext(gesture_image)[0]
             name_label = tk.Label(frame, text=name, bg="gray", fg="white")
             name_label.pack(side="left")
 
     def _on_mouse_wheel_vertical(self, event):
-        """Scroll vertically using the mouse wheel."""
+        # Scroll vertically using the mouse wheel.
         self.canvas.yview_scroll(-1 * int(event.delta / 120), "units")
 
     def _on_mouse_wheel_horizontal(self, event):
-        """Scroll horizontally using Shift + mouse wheel."""
+        # Scroll horizontally using Shift + mouse wheel.
         self.canvas.xview_scroll(-1 * int(event.delta / 120), "units")
 
     def load_images(self):
-        """Use a file dialog to select images."""
+        # Use a file dialog to select images.
         files = filedialog.askopenfilenames(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
         if not files:
             return
 
-        # Clear previous thumbnails
+        # Clear existing thumbnails
         for widget in self.gallery_content.winfo_children():
             widget.destroy()
 
         self.image_files = list(files)
 
-        # Display thumbnails with names or numbered labels
+        # Display thumbnails
         for index, file in enumerate(self.image_files):
             img = Image.open(file)
             img.thumbnail((100, 100))  # Create a small thumbnail
@@ -138,17 +147,16 @@ class ImageGalleryApp:
             frame.grid(row=index // 6, column=index % 6, padx=10, pady=10)
 
             label = tk.Label(frame, image=img)
-            label.image = img  # Keep a reference to avoid garbage collection
+            label.image = img  # Keep a reference
             label.pack()
             label.bind("<Button-1>", lambda e, path=file: self.open_image(path))
 
-            # Add name or numbered label below
-            name = file.split("/")[-1]  # Extract file name
+            name = file.split("/")[-1]  # File name
             name_label = tk.Label(frame, text=name if name else str(index + 1), bg="white")
             name_label.pack()
 
     def open_image(self, image_path):
-        """Open the image in a new window."""
+        # Open an image in a new window.
         viewer = tk.Toplevel(self.root)
         viewer.title("Image Viewer")
         viewer.geometry("600x400")
@@ -164,12 +172,13 @@ class ImageGalleryApp:
         btn_frame.pack(fill="x")
 
         def update_display():
-            """Update the displayed image."""
+            # Update the displayed image.
             nonlocal transformed_image, img_display
             img_display = ImageTk.PhotoImage(transformed_image)
             label.config(image=img_display)
             label.image = img_display
 
+        # Zoom and rotate functionality
         def zoom_in():
             nonlocal transformed_image
             width, height = transformed_image.size
@@ -187,6 +196,7 @@ class ImageGalleryApp:
             transformed_image = transformed_image.rotate(90, expand=True)
             update_display()
 
+        # Add buttons for zoom and rotate
         tk.Button(btn_frame, text="Zoom In", command=zoom_in).pack(side="left", padx=5, pady=5)
         tk.Button(btn_frame, text="Zoom Out", command=zoom_out).pack(side="left", padx=5, pady=5)
         tk.Button(btn_frame, text="Rotate", command=rotate_image).pack(side="left", padx=5, pady=5)
