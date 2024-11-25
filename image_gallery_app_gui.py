@@ -3,7 +3,6 @@ from tkinter import ttk  # Themed widgets
 from tkinter import filedialog  # File dialog for loading images
 from PIL import Image, ImageTk  # For image processing
 import os  # For file and directory operations
-import cv2  # OpenCV for webcam feed
 
 # Main class for the Image Gallery Application
 class ImageGalleryApp:
@@ -58,20 +57,15 @@ class ImageGalleryApp:
         self.canvas.bind("<Shift-MouseWheel>", self._on_mouse_wheel_horizontal)
 
         # Buttons Panel (Right)
-        self.buttons_panel = tk.Frame(self.root, width=400, bg="lightgray")  # Right panel for actions
+        self.buttons_panel = tk.Frame(self.root, width=300, bg="lightgray")  # Right panel for actions
         self.buttons_panel.grid(row=0, column=2, sticky="ns")
 
         # Load images button
         self.load_button = tk.Button(self.buttons_panel, text="Load Images", command=self.load_images, width=20)
-        self.load_button.pack(pady=10, side="bottom")
+        self.load_button.pack(pady=10)
 
         # List to store loaded image file paths
         self.image_files = []
-
-        # Camera feed area
-        self.camera_label = tk.Label(self.buttons_panel, text="Loading Camera...", bg="lightgray")
-        self.camera_label.pack(pady=10)
-        self.setup_camera_feed()
 
     # Load and display gesture images dynamically from the 'gestures' folder.
     def load_gesture_images(self):
@@ -122,78 +116,43 @@ class ImageGalleryApp:
             name_label = tk.Label(frame, text=name, bg="gray", fg="white")
             name_label.pack(side="left")
 
-    def setup_camera_feed(self):
-        # Initialize webcam feed
-        self.cap = cv2.VideoCapture(0)
-
-        def update_frame():
-            ret, frame = self.cap.read()
-            if ret:
-                # Convert OpenCV BGR image to PIL Image
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                img = Image.fromarray(frame)
-                img = img.resize((300, 225))  # Resize for the GUI
-                imgtk = ImageTk.PhotoImage(image=img)
-                self.camera_label.config(image=imgtk)
-                self.camera_label.image = imgtk
-
-            self.camera_label.after(10, update_frame)  # Refresh every 10ms
-
-        update_frame()
-
-    def on_closing(self):
-        if self.cap.isOpened():
-            self.cap.release()
-        self.root.destroy()
-        
     def _on_mouse_wheel_vertical(self, event):
-            # Scroll vertically using the mouse wheel.
-            self.canvas.yview_scroll(-1 * int(event.delta / 120), "units")
+        # Scroll vertically using the mouse wheel.
+        self.canvas.yview_scroll(-1 * int(event.delta / 120), "units")
 
     def _on_mouse_wheel_horizontal(self, event):
         # Scroll horizontally using Shift + mouse wheel.
         self.canvas.xview_scroll(-1 * int(event.delta / 120), "units")
 
     def load_images(self):
-        try:
-            # Simplified file type specification for macOS compatibility
-            files = filedialog.askopenfilenames(
-                title="Select Images",
-                filetypes=[
-                    ("PNG Files", "*.png"),
-                    ("JPEG Files", "*.jpg"),
-                    ("JPEG Files", "*.jpeg"),
-                    ("All Files", "*.*"),
-                ],
-            )
-            if not files:  # If no files are selected, return
-                return
+        # Use a file dialog to select images.
+        files = filedialog.askopenfilenames(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
+        if not files:
+            return
 
-            # Clear existing thumbnails (if displayed in the gallery)
-            for widget in self.gallery_content.winfo_children():
-                widget.destroy()
+        # Clear existing thumbnails
+        for widget in self.gallery_content.winfo_children():
+            widget.destroy()
 
-            self.image_files = list(files)
+        self.image_files = list(files)
 
-            # Display thumbnails (if applicable)
-            for index, file in enumerate(self.image_files):
-                img = Image.open(file)
-                img.thumbnail((100, 100))  # Create a small thumbnail
-                img = ImageTk.PhotoImage(img)
+        # Display thumbnails
+        for index, file in enumerate(self.image_files):
+            img = Image.open(file)
+            img.thumbnail((100, 100))  # Create a small thumbnail
+            img = ImageTk.PhotoImage(img)
 
-                frame = tk.Frame(self.gallery_content, bg="white", padx=5, pady=5)
-                frame.grid(row=index // 6, column=index % 6, padx=10, pady=10)
+            frame = tk.Frame(self.gallery_content, bg="white", padx=5, pady=5)
+            frame.grid(row=index // 6, column=index % 6, padx=10, pady=10)
 
-                label = tk.Label(frame, image=img)
-                label.image = img  # Keep a reference
-                label.pack()
-                label.bind("<Button-1>", lambda e, path=file: self.open_image(path))
+            label = tk.Label(frame, image=img)
+            label.image = img  # Keep a reference
+            label.pack()
+            label.bind("<Button-1>", lambda e, path=file: self.open_image(path))
 
-                name = os.path.basename(file)  # File name
-                name_label = tk.Label(frame, text=name if name else str(index + 1), bg="white")
-                name_label.pack()
-        except Exception as e:
-            print(f"Error in load_images: {e}")
+            name = file.split("/")[-1]  # File name
+            name_label = tk.Label(frame, text=name if name else str(index + 1), bg="white")
+            name_label.pack()
 
     def open_image(self, image_path):
         # Open an image in a new window.
@@ -241,9 +200,9 @@ class ImageGalleryApp:
         tk.Button(btn_frame, text="Zoom Out", command=zoom_out).pack(side="left", padx=5, pady=5)
         tk.Button(btn_frame, text="Rotate", command=rotate_image).pack(side="left", padx=5, pady=5)
 
+
 # Run the application
 if __name__ == "__main__":
     root = tk.Tk()
     app = ImageGalleryApp(root)
-    root.protocol("WM_DELETE_WINDOW", app.on_closing)
     root.mainloop()
