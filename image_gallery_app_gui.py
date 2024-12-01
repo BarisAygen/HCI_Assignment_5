@@ -66,7 +66,7 @@ class ImageGalleryApp:
         self.camera_label = tk.Label(self.buttons_panel, text="Loading Camera...", bg="lightgray")
         self.camera_label.pack(pady=10)
 
-        # List to store loaded image file paths
+        # Camera setup
         self.setup_camera_feed()
 
     # Load and display gesture images dynamically from the 'gestures' folder.
