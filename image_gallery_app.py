@@ -107,10 +107,6 @@ class ImageGalleryApp:
         # List to store loaded image file paths
         self.setup_camera_feed()
 
-
-
-        
-
     def update_selected_image(self, image_path):
         try:
             self.original_image = Image.open(image_path)
