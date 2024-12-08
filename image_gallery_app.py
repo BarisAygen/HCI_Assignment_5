@@ -74,11 +74,6 @@ class ImageGalleryApp:
         self.camera_label = tk.Label(self.buttons_panel, bg="lightgray", width=400, height=400)
         self.camera_label.pack(pady=10)
 
-
-        # # Image Viewer Area (Bottom section)
-        # self.viewer_label = tk.Label(self.root, text="Selected Image will appear here", bg="white")
-        # self.viewer_label.grid(row=1, column=1, sticky="nsew")
-
         # Image Viewer Area (Bottom section)
         self.viewer_label = tk.Label(
             self.root, 
@@ -87,22 +82,18 @@ class ImageGalleryApp:
         )
         self.viewer_label.grid(row=1, column=1, sticky="nsew")
 
-
         # Store the currently displayed image
         self.current_image = None
         self.transformed_image = None
         self.original_image = None  # To keep a reference of the original image
-
         self.selected_index = None  # Track the index of the selected image
         
-
         self.cursor = tk.Label(self.root, text="O", bg="red", fg="white")
         self.cursor.place(x=0, y=0)  # Initialize at (0, 0)
 
         # Button to load images from files
         self.load_button = tk.Button(self.buttons_panel, text="Load Images", command=self.load_images, width=20)
         self.load_button.pack(pady=10, side="bottom")
-
 
         # List to store loaded image file paths
         self.setup_camera_feed()
