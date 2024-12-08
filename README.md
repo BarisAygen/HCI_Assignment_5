@@ -2,18 +2,25 @@
 
 Folders:
 
-
 gestures -> Images for left panel gesture image display
+
 images -> Images for app gallery
 
 Main code files required where GUI and gesture implementations are combined for a fully functional application:
+
 gestures.py
+
 utils.py
+
 mediaPipeHandler.py
+
 image_gallery_app.py
 
+
 Extra files to show progress:
+
 image_gallery_app_only_gui.py -> The GUI file for the app
+
 mediapipe_gesture_implementation.ipynb -> The gesture implementation file for the GUI
 
 
