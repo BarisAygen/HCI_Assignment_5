@@ -1,6 +1,8 @@
 # HCI_Assignment_5
 
 Folders:
+
+
 gestures -> Images for left panel gesture image display
 images -> Images for app gallery
 
