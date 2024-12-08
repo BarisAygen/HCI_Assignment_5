@@ -2,7 +2,7 @@
 
 Folders:
 
-gestures -> Images for left panel gesture image display
+* gestures -> Images for left panel gesture image display
 
 images -> Images for app gallery
 
