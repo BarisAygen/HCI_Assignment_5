@@ -25,4 +25,4 @@ Extra files to show progress:
 
 In this project, the MediaPipe library is used to create an interactive system that uses hand gesture recognition. Some hand position landmarks are used to generate the gestures. A live stream from the camera on the computer is used to identify the movements. The gestures trigger the buttons on the graphical user interface. Users can perform their chosen actions using hand gestures. This is an image gallery application where users use hand gestures to perform certain functions of the application.
 
-Link to the Youtube: https://youtu.be/dk_h8NhgZAg 
+Link to the Youtube video that shows the application and how it works: https://youtu.be/dk_h8NhgZAg 
