@@ -82,15 +82,12 @@ class ImageGalleryApp:
         )
         self.viewer_label.grid(row=1, column=1, sticky="nsew")
 
-
         # Store the currently displayed image
         self.current_image = None
         self.transformed_image = None
         self.original_image = None  # To keep a reference of the original image
-
         self.selected_index = None  # Track the index of the selected image
         
-
         self.cursor = tk.Label(self.root, text="O", bg="red", fg="white")
         self.cursor.place(x=0, y=0)  # Initialize at (0, 0)
 
@@ -166,64 +163,9 @@ class ImageGalleryApp:
         return None
 
     def load_gesture_images(self):
-        # # Open a folder selection dialog for gesture images
-        # gestures_folder = filedialog.askdirectory(title="Select Gesture Folder")
-        
-        # if not gestures_folder:  # If the user cancels the folder selection
-        #     return
-        
-        # # Get all gesture image files from the selected folder
-        # gesture_files = os.listdir(gestures_folder)
-        # gesture_images = [f for f in gesture_files if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-
-        # # Notify user if no gesture images are found
-        # if not gesture_images:
-        #     tk.Label(
-        #         self.guide_panel,
-        #         text="No gesture images found.\nAdd images to the selected folder.",
-        #         bg="gray",
-        #         fg="yellow",
-        #         font=("Arial", 10),
-        #     ).pack(pady=10)
-        #     return
-
-        # # Display each gesture image as a thumbnail
-        # for gesture_image in gesture_images:
-        #     img_path = os.path.join(gestures_folder, gesture_image)
-        #     frame = tk.Frame(self.guide_panel, bg="gray", pady=5)
-        #     frame.pack()
-
-        #     try:
-        #         # Load and display thumbnail image
-        #         img = Image.open(img_path)
-        #         img.thumbnail((100, 100))
-        #         img = ImageTk.PhotoImage(img)
-        #         img_label = tk.Label(frame, image=img, bg="gray")
-        #         img_label.image = img  # Keep a reference to avoid garbage collection
-        #         img_label.pack(side="left", padx=5)
-        #     except Exception as e:
-        #         print(f"Error loading {img_path}: {e}")
-        #         img_label = tk.Label(frame, text="No Image", bg="gray", fg="red")
-        #         img_label.pack(side="left", padx=5)
-
-        #     # Display the name of each gesture image
-        #     name = os.path.splitext(gesture_image)[0]
-        #     name_label = tk.Label(frame, text=name, bg="gray", fg="white")
-        #     name_label.pack(side="left")
-        # Open a folder selection dialog for gesture images
-            # Clear the guide panel of any previous content
-            # Clear the guide panel of any previous content
+        # Clear all child widgets from self.guide_panel, effectively reset its contents.
         for widget in self.guide_panel.winfo_children():
             widget.destroy()
-
-        # Add the Load Gestures button at the top
-        # self.load_gestures_button = tk.Button(
-        #     self.guide_panel,
-        #     text="Load Gestures",
-        #     command=self.load_gesture_images,
-        #     width=20
-        # )
-        # self.load_gestures_button.pack(pady=10)
 
         # Open a folder selection dialog for gesture images
         gestures_folder = filedialog.askdirectory(title="Select Gesture Folder")
@@ -297,20 +239,16 @@ class ImageGalleryApp:
             except Exception as e:
                 print(f"Error loading {img_path}: {e}")
     
-    
-
     def setup_camera_feed(self):
         self.stop_event = threading.Event()
         self.gesture_detection = mph.GestureDetection(self.stop_event, self.camera_label, self.root,self)
         self.gesture_detection.start()
-
 
     def on_closing(self, stop_event):
         # Stop the camera feed thread and close the application window
         stop_event.set()
         self.root.destroy()
     
-    #######################
     def gesture_click(self, index):
         print("Clicking Event")
         """Handle the clicking gesture and update the selection highlight."""
@@ -424,7 +362,6 @@ class ImageGalleryApp:
 
     def zoom_in(self):
         """Zoom in on the displayed image."""
-
         if self.original_image:
             # Increase the scale of the image
             width, height = self.transformed_image.size
@@ -453,7 +390,6 @@ class ImageGalleryApp:
 
 
     def gesture_zoom(self, zoom_direction):
-
         print("Zoom Direction" + zoom_direction)
         """Handle zoom gestures."""
         if zoom_direction == "in":
